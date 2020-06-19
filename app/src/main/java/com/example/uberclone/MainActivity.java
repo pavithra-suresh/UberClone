@@ -3,6 +3,7 @@ package com.example.uberclone;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,6 +18,7 @@ import com.parse.ParseAnonymousUtils;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 import com.shashank.sony.fancytoastlib.FancyToast;
 
@@ -38,7 +40,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                             user.put("as",edtUserType.getText().toString());
 
-                            user.saveInBackground();
+                            user.saveInBackground(new SaveCallback() {
+                                @Override
+                                public void done(ParseException e) {
+                                    transitionToPassengerActivity();
+                                }
+                            });
 
                         }
 
@@ -70,8 +77,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (ParseUser.getCurrentUser() != null) {
 
             //Transition
-            ParseUser.logOut();
-
+            //ParseUser.logOut();
+            transitionToPassengerActivity();
         }
 
         edtUsername = findViewById(R.id.edtUsername);
@@ -121,6 +128,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                                 FancyToast.makeText(MainActivity.this,"Signed Up!",Toast.LENGTH_SHORT,FancyToast.SUCCESS,true).show();
 
+                                transitionToPassengerActivity();
+
                             }
 
                         }
@@ -142,6 +151,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             if(user != null && e == null) {
 
                                 FancyToast.makeText(MainActivity.this,"User Logged in!",Toast.LENGTH_SHORT,FancyToast.SUCCESS,true).show();
+
+                                transitionToPassengerActivity();
 
                             }
 
@@ -191,4 +202,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void transitionToPassengerActivity() {
+
+        if (ParseUser.getCurrentUser() != null) {
+
+            if (ParseUser.getCurrentUser().get("as").equals("Passenger")) {
+
+                Intent intent = new Intent(MainActivity.this,PassengerActivity.class);
+                startActivity(intent);
+
+            }
+
+        }
+
+    }
+
 }
