@@ -54,6 +54,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
 
+        } else {
+            FancyToast.makeText(MainActivity.this,"Are you a driver or a passenger?",FancyToast.LENGTH_SHORT,FancyToast.INFO,false).show();
+            return;
+
         }
 
     }
@@ -137,12 +141,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 } else if (state == State.LOGIN) {
 
-                    if(btnRadioDriver.isChecked() == false && btnRadioPassenger.isChecked() == false) {
-
-                        Toast.makeText(MainActivity.this,"Are you a driver or a passenger?",Toast.LENGTH_LONG).show();
-                        return;
-
-                    }
 
                     ParseUser.logInInBackground(edtUsername.getText().toString(), edtPassword.getText().toString(), new LogInCallback() {
                         @Override

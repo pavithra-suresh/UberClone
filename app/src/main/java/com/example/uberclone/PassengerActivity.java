@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -21,10 +22,12 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
+import com.parse.LogOutCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
@@ -40,12 +43,13 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
 
     private GoogleMap mMap;
 
-    private LocationManager LocationManager;
-    private LocationListener LocationListener;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
 
     private Button btnRequestCar;
 
     private boolean isUberCancelled = true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +65,7 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
         btnRequestCar = findViewById(R.id.btnRequestCar);
         btnRequestCar.setOnClickListener(this);
 
+
         ParseQuery<ParseObject> carRequestQuery = ParseQuery.getQuery("RequestCar");
         carRequestQuery.whereEqualTo("username",ParseUser.getCurrentUser().getUsername());
         carRequestQuery.findInBackground(new FindCallback<ParseObject>() {
@@ -70,9 +75,29 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
                 if (objects.size() >0 && e == null) {
 
                     isUberCancelled = false;
-                    btnRequestCar.setText("Cancel your uber request");
+                    btnRequestCar.setText("Cancel your uber request!");
 
                 }
+
+            }
+        });
+
+        findViewById(R.id.btnLogOutFromPassengerActivity).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                ParseUser.logOutInBackground(new LogOutCallback() {
+                    @Override
+                    public void done(ParseException e) {
+
+                        if (e == null) {
+
+                            finish();
+
+                        }
+
+                    }
+                });
 
             }
         });
@@ -89,13 +114,33 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
      * installed Google Play services and returned to the app.
      */
 
+//    private Location getLastKnownLocation() {
+//        Location l=null;
+//        LocationManager mLocationManager = (LocationManager)getApplicationContext().getSystemService(LOCATION_SERVICE);
+//        List<String> providers = mLocationManager.getProviders(true);
+//        Location bestLocation = null;
+//        for (String provider : providers) {
+//            if(ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED) {
+//                l = mLocationManager.getLastKnownLocation(provider);
+//            }
+//            if (l == null) {
+//                continue;
+//            }
+//            if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
+//                bestLocation = l;
+//            }
+//        }
+//        return bestLocation;
+//    }
+
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        LocationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
+        locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
 
-        LocationListener = new LocationListener() {
+        locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
 
@@ -121,7 +166,7 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
 
         if(Build.VERSION.SDK_INT < 23) {
 
-            LocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,LocationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListener);
 
         } else if (Build.VERSION.SDK_INT >= 23) {
 
@@ -131,9 +176,9 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
 
             } else {
 
-                LocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,LocationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListener);
 
-                Location currentPassengerLocation = LocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                Location currentPassengerLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 updateCameraPassengerLocation(currentPassengerLocation);
 
             }
@@ -150,9 +195,9 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
         if (requestCode == 1000 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
             if (ContextCompat.checkSelfPermission(PassengerActivity.this,Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                LocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, LocationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
-                Location currentPassengerLocation = LocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                Location currentPassengerLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 updateCameraPassengerLocation(currentPassengerLocation);
 
             }
@@ -162,11 +207,20 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
 
     private void updateCameraPassengerLocation(Location pLocation) {
 
-        LatLng passengerLocation = new LatLng(pLocation.getLatitude(),pLocation.getLongitude());
-        mMap.clear();
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(passengerLocation,15));
+        try {
+            LatLng passengerLocation = new LatLng(pLocation.getLatitude(), pLocation.getLongitude());
+            mMap.clear(); //To remove other markers of location
+            //if (!check) {
+             mMap.moveCamera(CameraUpdateFactory.newLatLng(passengerLocation)); //To move the map camera to user location
+            //}
+            mMap.setMinZoomPreference(15f);
+            //mMap.setMaxZoomPreference(14.0f);
+            mMap.addMarker(new MarkerOptions().position(passengerLocation).title("You are here!!!").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+            //check = true;
 
-        mMap.addMarker(new MarkerOptions().position(passengerLocation).title("You are here!!!"));
+        } catch (NullPointerException e) {
+        }
+
 
     }
 
@@ -177,8 +231,8 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
 
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 
-                LocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, LocationListener);
-                Location passengerCurrentLocation = LocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+                Location passengerCurrentLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
 
                 if (passengerCurrentLocation != null) {
 
