@@ -210,17 +210,16 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
         try {
             LatLng passengerLocation = new LatLng(pLocation.getLatitude(), pLocation.getLongitude());
             mMap.clear(); //To remove other markers of location
-            //if (!check) {
-             mMap.moveCamera(CameraUpdateFactory.newLatLng(passengerLocation)); //To move the map camera to user location
-            //}
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(passengerLocation)); //To move the map camera to user location
             mMap.setMinZoomPreference(15f);
             //mMap.setMaxZoomPreference(14.0f);
             mMap.addMarker(new MarkerOptions().position(passengerLocation).title("You are here!!!").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-            //check = true;
 
         } catch (NullPointerException e) {
-        }
 
+            e.printStackTrace();
+
+        }
 
     }
 
