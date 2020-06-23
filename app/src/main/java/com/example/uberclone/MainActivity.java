@@ -44,6 +44,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 @Override
                                 public void done(ParseException e) {
                                     transitionToPassengerActivity();
+                                    transitionToDriverRequestListActivity();
+
                                 }
                             });
 
@@ -83,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //Transition
             //ParseUser.logOut();
             transitionToPassengerActivity();
+            transitionToDriverRequestListActivity();
         }
 
         edtUsername = findViewById(R.id.edtUsername);
@@ -133,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 FancyToast.makeText(MainActivity.this,"Signed Up!",Toast.LENGTH_SHORT,FancyToast.SUCCESS,true).show();
 
                                 transitionToPassengerActivity();
+                                transitionToDriverRequestListActivity();
 
                             }
 
@@ -151,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 FancyToast.makeText(MainActivity.this,"User Logged in!",Toast.LENGTH_SHORT,FancyToast.SUCCESS,true).show();
 
                                 transitionToPassengerActivity();
+                                transitionToDriverRequestListActivity();
 
                             }
 
@@ -215,5 +220,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
     }
+
+    private void transitionToDriverRequestListActivity() {
+
+        if (ParseUser.getCurrentUser() != null) {
+
+            if (ParseUser.getCurrentUser().get("as").equals("Driver")) {
+
+                Intent intent = new Intent(this,DriverRequestListActivity.class);
+                startActivity(intent);
+
+            }
+
+        }
+
+    }
+
 
 }

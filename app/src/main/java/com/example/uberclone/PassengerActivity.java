@@ -6,6 +6,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.location.Location;
@@ -93,6 +94,9 @@ public class PassengerActivity extends FragmentActivity implements OnMapReadyCal
                         if (e == null) {
 
                             finish();
+
+                            Intent intent = new Intent(PassengerActivity.this,MainActivity.class);
+                            startActivity(intent);
 
                         }
 
