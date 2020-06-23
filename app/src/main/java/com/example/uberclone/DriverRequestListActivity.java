@@ -65,6 +65,18 @@ public class DriverRequestListActivity extends AppCompatActivity implements View
 
         locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
 
+        if (ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+            try {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListener);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+
+            }
+
+        }
+
     }
 
     @Override
@@ -138,7 +150,7 @@ public class DriverRequestListActivity extends AppCompatActivity implements View
 
             } else {
 
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListener);
+               // locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListener);
 
                 Location currentDriverLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 updateRequestsListView(currentDriverLocation);
@@ -203,8 +215,8 @@ public class DriverRequestListActivity extends AppCompatActivity implements View
             if (ContextCompat.checkSelfPermission(DriverRequestListActivity.this,Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
-                Location currentDriverLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                updateRequestsListView(currentDriverLocation);
+//                Location currentDriverLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+//                updateRequestsListView(currentDriverLocation);
 
             }
         }
